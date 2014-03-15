@@ -1,0 +1,83 @@
+body {
+	background-color:	#659EC7;
+}
+.stat_wdgt {
+	display:			inline-block;
+	padding:			10px;
+	border:				2px solid;
+	border-radius:		4px;
+	text-align:			center;
+}
+
+.schd_wdgt {
+	width:				100px;
+	height:				100px;
+	background-color:	blue;
+}
+
+.stat_chunk {
+	background-color:#dddddd;
+	display: inline-block;
+	margin: 5px;
+	border:				1px solid;
+	border-radius:		4px;
+}
+
+.stat_button {
+	margin:3px;
+	-webkit-border-top-left-radius:6px;
+	-moz-border-radius-topleft:6px;
+	border-top-left-radius:6px;
+	-webkit-border-top-right-radius:6px;
+	-moz-border-radius-topright:6px;
+	border-top-right-radius:6px;
+	-webkit-border-bottom-right-radius:6px;
+	-moz-border-radius-bottomright:6px;
+	border-bottom-right-radius:6px;
+	-webkit-border-bottom-left-radius:6px;
+	-moz-border-radius-bottomleft:6px;
+	border-bottom-left-radius:6px;
+	text-indent:0;
+	border:1px solid #555555;
+	display:inline-block;
+	color:#000000;
+	font-family:arial;
+	font-size:16px;
+	font-weight:bold;
+	font-style:normal;
+	height:40px;
+	line-height:20px;
+	width:100px;
+	text-decoration:none;
+	text-align:center;
+}.stat_button:hover {
+	background-color:#dfdfdf;
+}.stat_button:active {
+	position:relative;
+	top:1px;
+}
+
+.stat_button_on {
+	background-color:#30ff33;
+}
+
+.stat_button_off {
+	background-color:#ff3030;
+}
+
+.stat_button_auto {
+	background-color:#FFF380;
+}
+
+.indicator {
+	display: block;
+	height: 50px;
+	background-position:center; 
+	background-image:url('off.png');
+	background-size:contain;
+	background-repeat:no-repeat;
+}
+
+.indicator_active {
+	background-image:url('on.png');
+}
