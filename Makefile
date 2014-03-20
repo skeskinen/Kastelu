@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS=-Wall --std=c++11 -g
-LDFLAGS=-lwt -lwthttp
-SRCS=main.cpp app.cpp stat_wdgt.cpp schd_wdgt.cpp config.cpp worker.cpp
+LDFLAGS=-lwt -lwthttp -lwtdbo -lwtdbosqlite3
+SRCS=main.cpp app.cpp stat_wdgt.cpp schd_wdgt.cpp dbo.cpp worker.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 EXEC=kastelu

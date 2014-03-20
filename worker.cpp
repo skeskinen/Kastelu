@@ -1,5 +1,4 @@
 #include "worker.h"
-#include "config.h"
 #include "stat_wdgt.h"
 #include <thread>
 #include <iostream>
@@ -8,6 +7,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <chrono>
+#include "dbo.h"
 
 using std::cerr;
 using std::endl;
@@ -17,47 +17,49 @@ static std::thread t;
 static vector<App*> apps;
 static vector<Wt::Signal<int, bool>*> signals;
 static vector<bool> line_status;
+static Session session;
 
 static system_clock::time_point until_next_second()
 {
 	return system_clock::from_time_t(time(0)+2);
 }
 
-static bool eval_program(line_oper_prog p)
+static int current_time()
 {
 	std::time_t now;
-	std::tm now_time, start_time, end_time;
-	int seconds;
-
-	time(&now);  /* get current time; same as: now = time(NULL)  */
-
-	now_time = *localtime(&now);
-	start_time = *localtime(&now);
-	end_time = *localtime(&now);
-
-	if(now_time.tm_hour < p.start_hour || now_time.tm_hour >= p.end_hour)
-		return false;
-
-	start_time.tm_hour = p.start_hour; start_time.tm_min = 0; start_time.tm_sec = 0;
-	end_time.tm_hour = p.end_hour; end_time.tm_min = 0; end_time.tm_sec = 0;
-
-	seconds = (int)std::difftime(now, std::mktime(&start_time));
-	return (seconds % p.interval) < p.duration;
+	now = time(0);
+	
+	std::tm midnight = *localtime(&now);
+	midnight.tm_hour = 0; midnight.tm_min = 0; midnight.tm_sec = 0;
+	return (int) std::difftime(now, std::mktime(&midnight));
 }
 
-bool calc_state(cfg_chunk c)
+static bool eval_program(Prog_db_obj prog)
 {
-	bool ret = false;
+	int now = current_time();
 
-	if(c.state == line_oper_state::FORCE_ON)
-		return true;
-	if(c.state == line_oper_state::FORCE_OFF)
+	if(now < prog.start_time || now >= prog.end_time)
 		return false;
-	for(line_oper_prog p : c.progs) 
-	{
-		ret = ret || eval_program(p);
+	int sum = prog.duration + prog.interval;
+	int mul = ((now - prog.start_time)/sum);
+	int ref_point = prog.start_time + mul * sum;
+	return ref_point + prog.duration > now;
+}
+
+bool calc_state(Line_db_obj line)
+{
+	if(line.state == State::FORCE_ON)
+		return true;
+	else if(line.state == State::FORCE_OFF)
+		return false;
+	else {
+		bool ret = false;
+		std::vector<Prog_db_obj> progs = session.get_progs(line.m_id);
+		for(auto prog : progs) {
+			ret = ret || eval_program(prog);
+		}
+		return ret;
 	}
-	return ret;
 }
 
 static void emit(int i)
@@ -79,13 +81,13 @@ static void usb_write()
 
 static void work(void)
 {
-	vector<cfg_chunk> cfg = clone_config();
-	vector<bool>	  nLs = vector<bool>(line_count());
+	std::vector<Line_db_obj> lines = session.get_lines();
+	vector<bool>	  nLs = vector<bool>(lines.size());
 	size_t 			  i;
 	bool			  updated = false;
 
 	for(i = 0; i < nLs.size(); i++) {
-		nLs[i] = calc_state(cfg[i]);
+		nLs[i] = calc_state(lines[i]);
 		if(nLs[i] != line_status[i])
 			updated = true;
 	}
@@ -105,7 +107,8 @@ static void schedule_work(void)
 
 void worker_start()
 {
-	line_status = vector<bool>(line_count(), false);
+	std::vector<Line_db_obj> lines = session.get_lines();
+	line_status = vector<bool>(lines.size(), false);
 	t = std::thread(schedule_work);
 }
 

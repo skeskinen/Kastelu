@@ -2,44 +2,46 @@
 #include <iostream>
 #include <Wt/WText>
 #include <Wt/WPushButton>
+#include <functional>
 
 using std::cerr;
 using std::endl;
 
-vector<cfg_chunk> cfg;
-
-Stat_chunk::Stat_chunk(int _i, Wt::WContainerWidget* parent)
-	: Wt::WContainerWidget(parent)
-	, i(_i)
+Stat_chunk::Stat_chunk(Line_db_obj l, Session& sess)
+	: Wt::WContainerWidget()
+	, line(l)
+	, session(sess)
 {
-	setStyleClass("stat_chunk stat_chunk_off");
-	addWidget(new Wt::WText(cfg[i].name));
+	setStyleClass("stat_chunk");
+	addWidget(name_field = new Wt::WLineEdit(line.name));
+	addWidget(name_button = new Wt::WPushButton(L"Päivitä"));
+	name_field->addStyleClass("stat_name_field");
 	addWidget(new Wt::WBreak());
 	addWidget(indicator = new Wt::WText()); 
 	indicator->addStyleClass("indicator");
 	addWidget(stat_button = new Wt::WPushButton());
+	name_button->clicked().connect(std::bind([&](){
+				session.set_name(line.m_id, name_field->text().toUTF8());
+				}));
 	stat_button->clicked().
 		connect(this, &Stat_chunk::button_clicked);
+	set_state(line.state);
 };
 
-void Stat_chunk::modify_config_state(void)
+void Stat_chunk::set_state(Line_db_obj::Line_oper_state s)
 {
-	config_state(i, state);
-}
-
-void Stat_chunk::set_state(line_oper_state s)
-{
+	typedef Line_db_obj::Line_oper_state State;
 	state = s;
 	switch(s) {
-		case line_oper_state::AUTO_FUNC:
+		case State::AUTO_FUNC:
 			stat_button->setStyleClass("stat_button stat_button_auto");
 			stat_button->setText("auto");
 			break;
-		case line_oper_state::FORCE_ON:
+		case State::FORCE_ON:
 			stat_button->setStyleClass("stat_button stat_button_on");
 			stat_button->setText(L"päällä");
 			break;
-		case line_oper_state::FORCE_OFF:
+		case State::FORCE_OFF:
 			stat_button->setStyleClass("stat_button stat_button_off");
 			stat_button->setText("pois");
 			break;
@@ -50,32 +52,31 @@ void Stat_chunk::set_state(line_oper_state s)
 void Stat_chunk::button_clicked()
 {
 	switch(state) {
-		case line_oper_state::AUTO_FUNC:
-			set_state(line_oper_state::FORCE_ON);
+		case State::AUTO_FUNC:
+			set_state(State::FORCE_ON);
 			break;
-		case line_oper_state::FORCE_ON:
-			set_state(line_oper_state::FORCE_OFF);
+		case State::FORCE_ON:
+			set_state(State::FORCE_OFF);
 			break;
-		case line_oper_state::FORCE_OFF:
-			set_state(line_oper_state::AUTO_FUNC);
+		case State::FORCE_OFF:
+			set_state(State::AUTO_FUNC);
 			break;
 	}
-	modify_config_state();
+	session.set_state(line.m_id, state);
 }
 
-Stat_wdgt::Stat_wdgt(Wt::WContainerWidget* parent)
+Stat_wdgt::Stat_wdgt(Session& sess, Wt::WContainerWidget* parent)
 	: Wt::WContainerWidget(parent)
 	, chunks(vector<Stat_chunk*>())
+	, session(sess)
 {
-	int i;
 	Stat_chunk* w;
+	std::vector<Line_db_obj> lines = session.get_lines();
 
-	cfg = clone_config();
-	setStyleClass("stat_wdgt");
-	for(i = 0; i < line_count(); i++) {
-		w = new Stat_chunk(i, this);
+	for(auto line : lines) {
+		w = new Stat_chunk(line, session);
+		addWidget(w);
 		chunks.push_back(w);
-		w->set_state(cfg[i].state);
 	}
 }
 

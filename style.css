@@ -1,18 +1,6 @@
 body {
-	background-color:	#659EC7;
-}
-.stat_wdgt {
-	display:			inline-block;
-	padding:			10px;
-	border:				2px solid;
-	border-radius:		4px;
-	text-align:			center;
-}
+	font-size: 18px !important;
 
-.schd_wdgt {
-	width:				100px;
-	height:				100px;
-	background-color:	blue;
 }
 
 .stat_chunk {
@@ -21,10 +9,13 @@ body {
 	margin: 5px;
 	border:				1px solid;
 	border-radius:		4px;
+	text-align:center;
 }
 
 .stat_button {
 	margin:3px;
+	background-image:none;
+	text-shadow:none;
 	-webkit-border-top-left-radius:6px;
 	-moz-border-radius-topleft:6px;
 	border-top-left-radius:6px;
@@ -42,7 +33,7 @@ body {
 	display:inline-block;
 	color:#000000;
 	font-family:arial;
-	font-size:16px;
+	font-size:19px;
 	font-weight:bold;
 	font-style:normal;
 	height:40px;
@@ -80,4 +71,50 @@ body {
 
 .indicator_active {
 	background-image:url('on.png');
+}
+
+.invalid {
+	background-color:#ff7777 !important;
+}
+
+.plus_icon {
+	background-image:url('plus.png');
+	background-size: contain;
+	width: 50px;
+	height: 50px;
+}
+
+.plus_icon:hover {
+	background-position: 0px;
+	float: left;
+}
+
+.cross_icon {
+	background-image:url('cross.png');
+	background-size: contain;
+	width: 25px;
+	height: 25px;
+	position:absolute;
+	right:5px;
+}
+
+.cross_icon:hover {
+	background-position: 0px;
+}
+
+input {
+	font-size: 20px !important;
+}
+
+.stat_name_field {
+	width: 100px;
+}
+
+.schd_chunk {
+	position: relative;
+	border:				1px solid;
+	border-radius:		4px;
+	float: left;
+	margin: 4px;
+	padding:4px;
 }
