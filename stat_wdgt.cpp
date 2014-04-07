@@ -13,16 +13,11 @@ Stat_chunk::Stat_chunk(Line_db_obj l, Session& sess)
 	, session(sess)
 {
 	setStyleClass("stat_chunk");
-	addWidget(name_field = new Wt::WLineEdit(line.name));
-	addWidget(name_button = new Wt::WPushButton(L"Päivitä"));
-	name_field->addStyleClass("stat_name_field");
+	addWidget(new Wt::WText(line.name));
 	addWidget(new Wt::WBreak());
 	addWidget(indicator = new Wt::WText()); 
 	indicator->addStyleClass("indicator");
 	addWidget(stat_button = new Wt::WPushButton());
-	name_button->clicked().connect(std::bind([&](){
-				session.set_name(line.m_id, name_field->text().toUTF8());
-				}));
 	stat_button->clicked().
 		connect(this, &Stat_chunk::button_clicked);
 	set_state(line.state);

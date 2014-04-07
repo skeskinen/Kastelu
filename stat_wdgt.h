@@ -16,8 +16,6 @@ public:
 	void set_state		    (Line_db_obj::Line_oper_state s);
 
 	Line_db_obj					  line;
-	Wt::WLineEdit				  *name_field;
-	Wt::WPushButton				  *name_button;
 	Wt::WPushButton               *stat_button;
 	Line_db_obj::Line_oper_state  state;
 	Wt::WText		              *indicator;

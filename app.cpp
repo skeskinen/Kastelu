@@ -8,10 +8,13 @@ App::App(const Wt::WEnvironment& env)
 {
 	setTheme(new Wt::WBootstrapTheme());
 	useStyleSheet("style.css");
+	root()->addWidget(config_wdgt = new Config_wdgt(session));
+	root()->addWidget(new Wt::WBreak());
 	root()->addWidget(stat_wdgt = new Stat_wdgt(session));
 	root()->addWidget(new Wt::WBreak());
+	root()->addWidget(line_wdgt = new Line_wdgt(session));
 	root()->addWidget(new Wt::WBreak());
-	root()->addWidget(schd_wdgt = new Schd_wdgt(session));
+	root()->addWidget(prog_wdgt = new Prog_wdgt(session));
 	enableUpdates(true);
 	worker_connect(this);
 }
