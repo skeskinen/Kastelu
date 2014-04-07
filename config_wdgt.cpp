@@ -19,19 +19,22 @@ Config_wdgt::Config_wdgt(Session &sess)
 	t->elementAt(1,0)->addWidget(new Wt::WLabel("Aurinko laskee:"));
 	t->elementAt(1,1)->addWidget(new Wt::WLabel(std::get<1>(sun_riset).to_string()));
 
+	t->elementAt(2,0)->addWidget(new Wt::WLabel(L"Säteilyä minuutissa:"));
+    t->elementAt(2,1)->addWidget(new Wt::WLabel(current_radiation().to_string()));
+
 	Duration start_delay = Duration(config.start_delay);
 	Duration end_delay = Duration(config.end_delay);
-	t->elementAt(2,0)->addWidget(new Wt::WLabel("Aloita kastelu"));
-	t->elementAt(2,1)->addWidget(start_field = new Wt::WLineEdit(start_delay.to_string()));
-	t->elementAt(2,2)->addWidget(new Wt::WLabel(" auringonnousun jälkeen "));
-	t->elementAt(3,0)->addWidget(new Wt::WLabel("Lopeta kastelu"));
-	t->elementAt(3,1)->addWidget(end_field = new Wt::WLineEdit(end_delay.to_string()));
-	t->elementAt(3,2)->addWidget(new Wt::WLabel(" auringonlaskun jälkeen "));
+	t->elementAt(3,0)->addWidget(new Wt::WLabel("Aloita kastelu"));
+	t->elementAt(3,1)->addWidget(start_field = new Wt::WLineEdit(start_delay.to_string()));
+	t->elementAt(3,2)->addWidget(new Wt::WLabel(" auringonnousun jälkeen "));
+	t->elementAt(4,0)->addWidget(new Wt::WLabel("Lopeta kastelu"));
+	t->elementAt(4,1)->addWidget(end_field = new Wt::WLineEdit(end_delay.to_string()));
+	t->elementAt(4,2)->addWidget(new Wt::WLabel(" auringonlaskun jälkeen "));
 
 	Multiplier mul = Multiplier(config.multiplier);
-	t->elementAt(4,0)->addWidget(new Wt::WLabel("Kastelun pituus kerroin:"));
-	t->elementAt(4,1)->addWidget(multiplier_field = new Wt::WLineEdit(mul.to_string()));
-	t->elementAt(5,0)->addWidget(update_button = new Wt::WPushButton("päivitä"));
+	t->elementAt(5,0)->addWidget(new Wt::WLabel("Kastelun pituus kerroin:"));
+	t->elementAt(5,1)->addWidget(multiplier_field = new Wt::WLineEdit(mul.to_string()));
+	t->elementAt(6,0)->addWidget(update_button = new Wt::WPushButton("päivitä"));
 
 	update_button->clicked().connect(this, &Config_wdgt::update_db);
 

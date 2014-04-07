@@ -52,4 +52,6 @@ int zone_utc_plus	(void);
 using std::chrono::system_clock;
 system_clock::time_point until_next_second(void);
 
+Multiplier current_radiation();
+
 #endif //TIME_H

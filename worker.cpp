@@ -2,6 +2,7 @@
 #include "stat_wdgt.h"
 #include <thread>
 #include <iostream>
+#include <fstream>
 #include <Wt/WSignal>
 #include <vector>
 #include <algorithm>
@@ -32,7 +33,7 @@ static int time_d;
 static Session session;
 static bool new_client;
 
-static const int max_concurrent_programs = 2;
+static const int max_concurrent_programs = 1;
 
 static void emit_new_status(int i)
 {
@@ -56,16 +57,23 @@ static bool updated()
 
 static void usb_write()
 {
+	std::ofstream fout("/dev/usb/iowarrior0");
+    unsigned int bits = 0;
+    for(int i=0; i<10; i++) {
+        if(!new_line_status[i])
+            bits += 1 << i;
+    }   
 
+    fout << (char) bits << (char) (bits>>8);
+    fout.flush();
 }
 
 static void increment_time_radiation(vector<Line_db_obj> &lines)
 {
-	double prev_radiation = 0;
 	for(size_t i = 0; i < lines.size(); i++) {
 		auto line = lines[i];
 		if(line.state == State::AUTO_FUNC) {
-			radiation_accural[i] += prev_radiation * time_d;
+			radiation_accural[i] += current_radiation().to_double() * ((double)time_d) / 60.0;
 			time_accural[i] += time_d;
 		}
 	}
@@ -137,15 +145,6 @@ static void increment_totals()
 
 static void check_work_queue()
 {
-	cerr << endl << "queue :" << endl;
-	for(size_t i=0; i < max_concurrent_programs; i++) {
-		if(work_queue.size() > i) {
-			cerr << '\t' << "line: " << work_queue[i].line << ", time: " << work_queue[i].time << endl;
-		}
-	}
-	for(size_t i=max_concurrent_programs; i < work_queue.size(); i++) {
-		cerr << '\t' << '\t' << "line: " << work_queue[i].line << ", time: " << work_queue[i].time << endl;
-	}
 	for(size_t i=0; i < max_concurrent_programs; i++) {
 		if(work_queue.size() > i) {
 			auto wi = work_queue[i];
@@ -158,7 +157,6 @@ static void check_work_queue()
 			new_line_status[wi.line] = true;
 			work_queue[i].time -= time_d;
 		}
-
 	}
 }
 
@@ -166,8 +164,8 @@ static bool correct_time_frame(Config_db_obj conf)
 {
 	auto sunriset = sunriset_today();
 	int now = Time::current_time().to_int();
-	int rise = std::get<0>(sunriset).to_int();
-	int set = std::get<1>(sunriset).to_int();
+	int rise = (std::get<0>(sunriset).to_int() + conf.start_delay) % (60*60*24);
+	int set = (std::get<1>(sunriset).to_int() + conf.end_delay) % (60*60*24);
 
 	if(std::get<2>(sunriset)) return true;
 	if((now > rise) && ((now < set) || (set < rise))) return true;
@@ -190,8 +188,8 @@ static void work(void)
 	check_work_queue();
 	manual_mode_lines(lines);
 
+	usb_write();
 	if(updated() || new_client){
-		usb_write();
 		for(size_t j = 0; j < apps.size(); j++) {
 			emit_new_status(j);
 		}

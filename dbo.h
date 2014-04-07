@@ -97,7 +97,6 @@ public:
 	void					 reset_totals(void);
 	void					 increment_total(int line_id, int inc);
 
-
 	dbo::Session          session;
 	dbo::backend::Sqlite3 sqlite3;
 };

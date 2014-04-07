@@ -9,14 +9,17 @@ EXEC=kastelu
 all: $(OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $(EXEC) $(OBJS)
 
-run: all
-	./${EXEC} --docroot . --http-address 127.0.0.1 --http-port 8080
+run: 
+	./${EXEC} --docroot . --http-address 127.0.0.1 --http-port 80
 
 debug: all
 	gdb --args ./${EXEC} --docroot . --http-address localhost --http-port 8080
 
 .cpp.o:
 	$(CC) $(CFLAGS) -c $< -o $@
+
+sensors:
+	owfs -uall --allow_other sensors
 
 clean:
 	rm $(OBJS) $(EXEC)

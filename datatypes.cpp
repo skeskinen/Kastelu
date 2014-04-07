@@ -1,6 +1,7 @@
 #include "datatypes.h"
 #include <sstream>
 #include <iostream>
+#include <fstream>
 #include <iomanip> 
 #include <cstdlib>
 #include "sunriset.h"
@@ -64,6 +65,7 @@ Duration::Duration(string arg)
 {
 	int i;
 	char c;
+	int sign = 0;
 	std::stringstream ss(arg);
 
 	duration = 0;
@@ -82,7 +84,13 @@ Duration::Duration(string arg)
 				break;
 		}
 		ss >> i >> c;
+		if(sign == 0){
+			if(duration > 0) sign = 1;
+			else sign = -1;
+			duration = abs(duration);
+		}
 	}
+	duration = duration * sign;
 }
 
 Duration::Duration(int arg)
@@ -92,21 +100,22 @@ Duration::Duration(int arg)
 
 string Duration::to_string()
 {
-	if(duration <= 0)
+	if(duration == 0)
 		return "0s ";
-	else {
-		std::stringstream ss;
-		int hours = duration/60/60;
-		int minutes = (duration/60)%60;
-		int seconds = duration % 60;
-		if(hours > 0)
-			ss << hours << "h ";
-		if(minutes > 0)
-			ss << minutes << "m ";
-		if(seconds > 0)
-			ss << seconds << "s ";
-		return ss.str();
-	}
+	int dur = abs(duration);
+	std::stringstream ss;
+	if(duration < 0)
+		ss << "-";
+	int hours = dur/60/60;
+	int minutes = (dur/60)%60;
+	int seconds = dur % 60;
+	if(hours > 0)
+		ss << hours << "h ";
+	if(minutes > 0)
+		ss << minutes << "m ";
+	if(seconds > 0)
+		ss << seconds << "s ";
+	return ss.str();
 }
 
 int Duration::to_int()
@@ -151,7 +160,7 @@ Wt::WRegExpValidator* Time::validator(void)
 Wt::WRegExpValidator* Duration::validator(void)
 {
 	Wt::WRegExpValidator *duration_validator =
-		new Wt::WRegExpValidator("\\s*([0-9]{1,2}h\\s*)?([0-9]{1,2}m\\s*)?([0-9]{1,2}s)?\\s*");
+		new Wt::WRegExpValidator("\\s*-?([0-9]{1,2}h\\s*)?([0-9]{1,2}m\\s*)?([0-9]{1,2}s)?\\s*");
 
 	return duration_validator;
 }
@@ -196,29 +205,10 @@ std::tuple<Time,Time,bool> sunriset_today(void)
 	return std::make_tuple(r,s,rs);
 }
 	
-/*
-static Wt::WString next_time_string(Prog_db_obj prog)
-{	 
-	Wt::WString str = L"Seuraavan kerran: "; 
-	int now = current_time();
-	int start_time;
-	if(now < prog.start_time || now >= prog.end_time) {
-		start_time = prog.start_time;
-	} else {
-		int sum = prog.duration + prog.interval;
-		int mul = ((now - prog.start_time)/sum);
-		int ref_point = prog.start_time + mul * sum;
-		if(ref_point + prog.duration > now) //program running
-			start_time = ref_point;
-		else if(ref_point + sum >= prog.end_time) //next one tomorrow
-			start_time = prog.start_time;
-		else								//currently waiting
-			start_time = ref_point + sum;
-	}
-	std::stringstream ss;
-	ss << time_string(start_time) << "-" 
-		<< time_string(std::min(start_time + prog.duration, prog.end_time));
-	str += ss.str();
-	return str;
+Multiplier current_radiation()
+{
+	std::ifstream fin("sensors/26.1C40B6000000/vis");
+	double r;
+	fin >> r;
+	return Multiplier(r*1000.0);
 }
-*/
