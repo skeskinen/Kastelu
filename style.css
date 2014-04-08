@@ -114,6 +114,8 @@ td {
 	background-size: contain;
 	width: 50px;
 	height: 50px;
+	background-position: 0px;
+	float: left;
 }
 
 .plus_icon:hover {
