@@ -10,7 +10,7 @@ all: $(OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $(EXEC) $(OBJS)
 
 run: 
-	./${EXEC} --docroot . --http-address 127.0.0.1 --http-port 80
+	./${EXEC} --docroot . --http-address localhost --http-port 80
 
 debug: all
 	gdb --args ./${EXEC} --docroot . --http-address localhost --http-port 8080
