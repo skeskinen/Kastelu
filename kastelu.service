@@ -1,0 +1,11 @@
+#place in /etc/systemd/system/
+[Unit]
+Description=Kastelu
+
+[Service]
+Type=forking
+PIDFile=/var/run/kastelu.pid
+ExecStart=/kastelu/start_script.sh
+
+[Install]
+WantedBy=multi-user.target

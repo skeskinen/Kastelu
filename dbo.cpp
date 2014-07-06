@@ -45,6 +45,7 @@ void Session::ensure_lines_exist(void)
 			line->state = State::AUTO_FUNC;
 			line->multiplier = 1.0;
 			line->program = -1;
+			line->total_today = 0;
 			session.add(line);
 			transaction.commit();
 		}
