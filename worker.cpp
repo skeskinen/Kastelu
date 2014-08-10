@@ -200,9 +200,10 @@ static void work(void)
 
 static void schedule_work(void)
 {
-	std::this_thread::sleep_until(until_next_second());
-	work();
-	schedule_work();
+	while (true) {
+		std::this_thread::sleep_until(until_next_second());
+		work();
+	}
 }
 
 void worker_start()
